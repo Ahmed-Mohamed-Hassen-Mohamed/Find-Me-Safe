@@ -38,7 +38,7 @@ const _upload = multer({
   },
 });
 
-router.post("/addImages", upload.array("images"), embedding.addEmbedding);
+router.post("/addImages", userAuth, upload.array("images"), embedding.addEmbedding);
 router.post("/predict", userAuth, _upload.array("images"), embedding.predict);
 router.get("/retrain", embedding.retrain);
 module.exports = router;
