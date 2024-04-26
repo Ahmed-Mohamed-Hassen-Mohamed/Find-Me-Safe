@@ -2,8 +2,12 @@ const Embedding = require("../models/embedding");
 
 exports.addEmbedding = async (req, res) => {
   try {
-    const images = req.files;
-    const paths = images.map((image) => image.path);
+    const faces = req.files.face;
+    const fingerprints = req.files.fingerprint;
+    const face_paths = faces.map((face) => face.path);
+    const fingerprint_paths = fingerprints.map(
+      (fingerprint) => fingerprint.path
+    );
     const responseFingerprint = await fetch(
       "http://127.0.0.1:8000/get_embedding_fingerprint/",
       {
@@ -11,7 +15,7 @@ exports.addEmbedding = async (req, res) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(paths),
+        body: JSON.stringify(fingerprint_paths),
       }
     );
     if (!responseFingerprint.ok) {
@@ -25,7 +29,7 @@ exports.addEmbedding = async (req, res) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(paths),
+        body: JSON.stringify(face_paths),
       }
     );
     if (!responseFace.ok) {
@@ -55,17 +59,17 @@ exports.predict = async (req, res) => {
   try {
     const face = req.files[0];
     const fingerprint = req.files[1];
-    
+
     const formData = new FormData();
-    
+
     formData.append("face", new Blob([face.buffer]), {
       filename: face.originalname,
-      contentType: face.mimetype
+      contentType: face.mimetype,
     });
-    
+
     formData.append("fingerprint", new Blob([fingerprint.buffer]), {
       filename: fingerprint.originalname,
-      contentType: fingerprint.mimetype
+      contentType: fingerprint.mimetype,
     });
 
     const response = await fetch("http://127.0.0.1:8000/predict/", {
@@ -84,8 +88,6 @@ exports.predict = async (req, res) => {
     res.status(400).send(err.message || "Bad Request");
   }
 };
-
-
 
 exports.retrain = async (req, res) => {
   try {
