@@ -38,7 +38,15 @@ const _upload = multer({
   },
 });
 
-router.post("/addImages", userAuth, upload.array("images"), embedding.addEmbedding);
+router.post(
+  "/addImages",
+  userAuth,
+  upload.fields([
+    { name: "face", maxCount: 10 },
+    { name: "fingerprint", maxCount: 10 },
+  ]),
+  embedding.addEmbedding
+);
 router.post("/predict", userAuth, _upload.array("images"), embedding.predict);
 router.get("/retrain", embedding.retrain);
 module.exports = router;
