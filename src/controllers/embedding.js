@@ -1,4 +1,5 @@
 const Embedding = require("../models/embedding");
+const Childern = require("../models/childern");
 
 exports.addEmbedding = async (req, res) => {
   try {
@@ -81,8 +82,9 @@ exports.predict = async (req, res) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
-    res.status(200).send(data);
+    const data = response.json();
+    const child = await Childern.findOne({ id: data.id });
+    res.status(200).send(child);
   } catch (err) {
     console.error("Error:", err);
     res.status(400).send(err.message || "Bad Request");
