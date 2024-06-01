@@ -1,6 +1,85 @@
 const User = require("../models/users");
+const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 
 // Example controller functions
+
+exports.sendEmail = async (req, res) => {
+  try {
+    const email = req.body.email;
+    const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASS,
+      },
+    });
+
+    let mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Verify Your Email",
+      html: `<p>Enter ${otp} in the app to verify your email address.</p>`,
+    };
+
+    await transporter.sendMail(mailOptions, async () => {
+      try {
+        const payload = { otp };
+        const OTPToken = jwt.sign(payload, process.env.SECRET_KEY, {
+          expiresIn: "30s",
+        });
+
+        const user = await User.findOneAndUpdate(
+          { email: email },
+          { OTPToken },
+          {
+            new: true,
+          }
+        );
+        if (!user) {
+          return res.status(400).send({ message: "User not found" });
+        }
+        res.status(200).send({ message: "OTP sent and token generated" });
+      } catch (error) {
+        res.status(404).send({ message: error.message });
+      }
+    });
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).send({ message: "User not found" });
+    }
+
+    const token = user.OTPToken;
+    if (!token) {
+      return res.status(400).send({ message: "OTP token not found" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.SECRET_KEY);
+    } catch (error) {
+      return res.status(400).send({ message: "Invalid or expired OTP token" });
+    }
+
+    if (decoded.otp !== otp) {
+      return res.status(400).send({ message: "Invalid OTP" });
+    }
+
+    res.status(200).send({ message: true });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+};
 
 exports.createUser = async (req, res) => {
   try {
@@ -14,7 +93,7 @@ exports.createUser = async (req, res) => {
 
 exports.uploadPhoto = async (req, res) => {
   try {
-    const user = req.user
+    const user = req.user;
     user.profile = req.file.buffer;
     await user.save();
     res.status(200).send({ user });
