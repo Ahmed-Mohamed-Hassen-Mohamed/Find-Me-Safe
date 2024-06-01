@@ -7,8 +7,8 @@ const io = require("socket.io")(httpServer, {
 
 const cors = require("cors");
 const helmet = require("helmet");
-require("dotenv").config();
-const port = 10000;
+require('dotenv').config();
+const port = process.env.PORT;
 require("./db/mongoose");
 app.use(express.json());
 app.use(cors());
