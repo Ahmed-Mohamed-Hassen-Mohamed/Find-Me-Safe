@@ -91,6 +91,9 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  OTPToken: {
+    type: String,
+  }
 });
 userSchema.pre("save", async function () {
   if (this.isModified("password")) {
@@ -120,7 +123,7 @@ userSchema.methods.generateToken = function () {
   const payload = {
     _id: this._id.toString(),
   };
-  const token = jwt.sign(payload, "nodeAPI");
+  const token = jwt.sign(payload, process.env.SECRET_KEY);
   return token;
 };
 
