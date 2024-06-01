@@ -18,6 +18,8 @@ router.post("/signUp", users.createUser);
 router.post("/uploadPhoto", userAuth, upload.single("profile"), users.uploadPhoto);
 
 router.post("/signIn", users.login);
+router.post("/sendEmail", users.sendEmail);
+router.post("/verifyOTP", users.verifyOTP);
 
 router.get("/users", userAuth, users.getUsers);
 router.get("/profile", userAuth, users.getProfile);
