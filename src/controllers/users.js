@@ -41,7 +41,8 @@ exports.sendEmail = async (req, res) => {
         if (!user) {
           return res.status(400).send({ message: "User not found" });
         }
-        res.status(200).send({ message: "OTP sent and token generated" });
+        // res.status(200).send({ message: "OTP sent and token generated" });
+        res.status(200).send({ otp });
       } catch (error) {
         res.status(404).send({ message: error.message });
       }
@@ -85,7 +86,9 @@ exports.createUser = async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    res.status(200).send({ message: "Successful" });
+    const token = user.generateToken();
+    res.status(200).send({ token });
+    // res.status(200).send({ message: "Successful" });
   } catch (err) {
     res.status(400).send(err);
   }
