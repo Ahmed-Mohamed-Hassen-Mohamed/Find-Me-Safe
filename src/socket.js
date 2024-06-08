@@ -27,7 +27,7 @@ module.exports = function socketEvents(io) {
       socket.disconnect(true);
     }
 
-    socket.on("authenticated", (userId) => authenticated(userId, socket));
+    socket.on("authenticated", (data) => authenticated(data, socket));
 
     // Listen for notification events
     socket.on("notification", (data) => handleNotification(data, io));
@@ -52,10 +52,10 @@ async function removeSocket(socket) {
   }
 }
 
-async function authenticated(userId, socket) {
+async function authenticated(data, socket) {
   try {
     const session = new Socket({
-      userId: userId,
+      userId: data.userId,
       socketId: socket.id,
     });
     await session.save();
