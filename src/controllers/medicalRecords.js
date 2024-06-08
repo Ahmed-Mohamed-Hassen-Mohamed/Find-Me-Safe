@@ -30,7 +30,7 @@ exports.getRecordById = async (req, res) => {
 exports.getChildRecords = async (req, res) => {
   try {
     const childId = req.params.id;
-    const records = await Record.find({ childId });
+    const records = await Record.find({ childId }).populate("childId");
     if (!records.length) {
       return res
         .status(404)
