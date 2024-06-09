@@ -93,7 +93,11 @@ const userSchema = new mongoose.Schema({
   },
   OTPToken: {
     type: String,
-  }
+  },
+  flag: {
+    type: Boolean,
+    default: false,
+  },
 });
 userSchema.pre("save", async function () {
   if (this.isModified("password")) {
