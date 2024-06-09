@@ -146,6 +146,11 @@ exports.login = async (req, res) => {
       req.body.email,
       req.body.password
     );
+    if (user.flag === false) {
+      return res
+        .status(401)
+        .send({ message: "Email not verified" });
+    }
     const token = user.generateToken();
     res.status(200).send({ user, token });
   } catch (err) {
