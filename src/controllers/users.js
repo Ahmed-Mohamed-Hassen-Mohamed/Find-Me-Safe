@@ -60,7 +60,7 @@ exports.verifyOTP = async (req, res) => {
     }
 
     const OTPToken = user.OTPToken;
-    if (!token) {
+    if (!OTPToken) {
       return res.status(400).send({ message: "OTP token not found" });
     }
 
