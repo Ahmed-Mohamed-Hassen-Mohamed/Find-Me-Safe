@@ -109,23 +109,32 @@ exports.createUser = async (req, res) => {
       html: `<p>Enter ${otp} in the app to verify your email address.</p>`,
     };
 
-    await transporter.sendMail(mailOptions, async () => {
-      try {
-        const payload = { otp };
-        const OTPToken = jwt.sign(payload, process.env.SECRET_KEY, {
-          expiresIn: "30s",
-        });
+    let _user = await User.findOne({ email });
+    if (_user && _user.flag) {
+      return res.status(200).send({ message: "There is an account for this email." });
+    }
 
-        const user = new User(req.body);
-        user.OTPToken = OTPToken;
-        await user.save();
-        res.status(200).send({ message: "OTP sent and token generated" });
-      } catch (error) {
-        res.status(404).send({ message: error.message });
-      }
+    await transporter.sendMail(mailOptions);
+
+    const payload = { otp };
+    const OTPToken = jwt.sign(payload, process.env.SECRET_KEY, {
+      expiresIn: "30s",
     });
-  } catch (err) {
-    res.status(400).send(err);
+
+    if (_user) {
+      req.body.OTPToken = OTPToken;
+      await User.findOneAndUpdate({ email: email }, req.body, {
+        new: true,
+      });
+    } else {
+      const user = new User(req.body);
+      user.OTPToken = OTPToken;
+      await user.save();
+    }
+
+    res.status(200).send({ message: "OTP sent and token generated" });
+  } catch (error) {
+    res.status(400).send({ message: error.message });
   }
 };
 
@@ -147,9 +156,7 @@ exports.login = async (req, res) => {
       req.body.password
     );
     if (user.flag === false) {
-      return res
-        .status(401)
-        .send({ message: "Email not verified" });
+      return res.status(401).send({ message: "Email not verified" });
     }
     const token = user.generateToken();
     res.status(200).send({ user, token });
