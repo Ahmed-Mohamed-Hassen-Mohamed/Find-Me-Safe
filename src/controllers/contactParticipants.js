@@ -33,11 +33,11 @@ exports.getParticipants = async (req, res) => {
     const participants = await Participant.find({ childId }).populate(
       "emergencyContactId"
     );
-    if (!participants.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not participants is found" });
-    }
+    // if (!participants.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not participants is found" });
+    // }
     res.status(200).send(participants);
   } catch (err) {
     res.status(500).send(err);
@@ -50,11 +50,11 @@ exports.getParticipantsByContactId = async (req, res) => {
     const participants = await Participant.find({ emergencyContactId }).populate(
       "emergencyContactId"
     );
-    if (!participants.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not participants is found" });
-    }
+    // if (!participants.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not participants is found" });
+    // }
     res.status(200).send(participants);
   } catch (err) {
     res.status(500).send(err);
