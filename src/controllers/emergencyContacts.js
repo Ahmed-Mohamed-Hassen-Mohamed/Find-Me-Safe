@@ -31,11 +31,11 @@ exports.getUserContacts = async (req, res) => {
   try {
     const userId = req.params.id;
     const contacts = await Contact.find({ userId });
-    if (!contacts.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not contacts is found" });
-    }
+    // if (!contacts.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not contacts is found" });
+    // }
     res.status(200).send(contacts);
   } catch (err) {
     res.status(500).send(err);
