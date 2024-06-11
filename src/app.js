@@ -14,8 +14,11 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 
-const socket = require("./socket");
-socket(io);
+const {socketEvents} = require("./socket");
+socketEvents(io);
+
+const {sharedSocket} = require("./controllers/embedding");
+sharedSocket(io);
 
 const usersRouter = require("./routers/users");
 const addressesRouter = require("./routers/addresses");
