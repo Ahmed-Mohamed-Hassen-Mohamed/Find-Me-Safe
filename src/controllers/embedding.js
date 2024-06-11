@@ -1,42 +1,47 @@
 const Embedding = require("../models/embedding");
 const Childern = require("../models/childern");
+const { createChat } = require("../controllers/chats");
+const { sendNotification } = require("../socket");
+let IO;
+
+exports.sharedSocket = (io) => {
+  IO = io;
+};
 
 exports.addEmbedding = async (req, res) => {
   try {
     const faces = req.files.face;
     const fingerprints = req.files.fingerprint;
-    const face_paths = faces.map((face) => face.path);
-    const fingerprint_paths = fingerprints.map(
-      (fingerprint) => fingerprint.path
-    );
-    const responseFingerprint = await fetch(
-      "http://127.0.0.1:8000/get_embedding_fingerprint/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(fingerprint_paths),
-      }
-    );
-    if (!responseFingerprint.ok) {
-      throw new Error(`HTTP error! Status: ${responseFingerprint.status}`);
-    }
 
-    const responseFace = await fetch(
-      "http://127.0.0.1:8000/get_embedding_face/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(face_paths),
-      }
-    );
-    if (!responseFace.ok) {
-      throw new Error(`HTTP error! Status: ${responseFace.status}`);
-    }
+    const formFace = new FormData();
+    const formFingerprint = new FormData();
 
+    faces.forEach((face) => {
+      formFace.append("images", new Blob([face.buffer]), face.originalname);
+    });
+
+    fingerprints.forEach((fingerprint) => {
+      formFingerprint.append(
+        "images",
+        new Blob([fingerprint.buffer]),
+        fingerprint.originalname
+      );
+    });
+
+    const [responseFace, responseFingerprint] = await Promise.all([
+      fetch("http://127.0.0.1:8000/get_embedding_face/", {
+        method: "POST",
+        body: formFace,
+      }),
+      fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
+        method: "POST",
+        body: formFingerprint,
+      }),
+    ]);
+
+    if (!responseFace.ok || !responseFingerprint.ok) {
+      throw new Error("Error in fetching embeddings");
+    }
     const face = await responseFace.json();
     const fingerprint = await responseFingerprint.json();
 
@@ -82,8 +87,28 @@ exports.predict = async (req, res) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = response.json();
-    const child = await Childern.findOne({ id: data.id });
+    const data = await response.json();
+
+    const child = await Childern.findOne({ _id: data.id });
+    if (!child) {
+      return res.status(404).send("Child not found");
+    }
+
+    const chatData = {
+      childId: child._id,
+      parentId: child.userId,
+      finderId: req.user._id,
+    };
+    await createChat(chatData)
+    
+    const notificationData = {
+      userId: child.userId,
+      content: "Hello World",
+      status: "True",
+      type: "Find Child",
+    };
+    await sendNotification(notificationData, IO);
+
     res.status(200).send(child);
   } catch (err) {
     console.error("Error:", err);
