@@ -31,11 +31,11 @@ exports.getChildRecords = async (req, res) => {
   try {
     const childId = req.params.id;
     const records = await Record.find({ childId }).populate("childId");
-    if (!records.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not records is found" });
-    }
+    // if (!records.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not records is found" });
+    // }
     res.status(200).send(records);
   } catch (err) {
     res.status(500).send(err);
