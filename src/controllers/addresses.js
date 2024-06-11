@@ -31,11 +31,11 @@ exports.getUserAddresses = async (req, res) => {
   try {
     const userId = req.params.id;
     const addresses = await Address.find({ userId });
-    if (!addresses.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not addresses is found" });
-    }
+    // if (!addresses.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not addresses is found" });
+    // }
     res.status(200).send(addresses);
   } catch (err) {
     res.status(500).send(err);
