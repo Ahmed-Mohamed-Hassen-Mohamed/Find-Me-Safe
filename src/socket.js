@@ -4,28 +4,8 @@ const Chat = require("./models/chats");
 const Message = require("./models/messages");
 const jwt = require("jsonwebtoken");
 
-module.exports = function socketEvents(io) {
+exports.socketEvents = (io) => {
   io.on("connection", async (socket) => {
-    const token = socket.handshake.query.token;
-    if (token) {
-      try {
-        const decoded = jwt.verify(token, "nodeAPI");
-        if (decoded) {
-          socket.userId = decoded._id;
-          const session = new Socket({
-            userId: decoded._id,
-            socketId: socket.id,
-          });
-          await session.save();
-          console.log("A user connected");
-        }
-      } catch (err) {
-        console.error("Token verification failed:", err.message);
-      }
-    } else {
-      console.error("Token is missing");
-      socket.disconnect(true);
-    }
 
     socket.on("authenticated", (data) => authenticated(data, socket));
 
@@ -44,8 +24,8 @@ module.exports = function socketEvents(io) {
 
 async function removeSocket(socket) {
   try {
-    const userId = socket.userId;
-    await Socket.findOneAndDelete({ userId });
+    const socketId = socket.id;
+    await Socket.findOneAndDelete({ socketId });
     console.log("User disconnected");
   } catch (err) {
     console.error(err.message);
@@ -59,24 +39,8 @@ async function authenticated(data, socket) {
       socketId: socket.id,
     });
     await session.save();
-    socket.userId = userId;
   } catch (err) {
     console.error(err.message);
-  }
-}
-
-async function handleNotification(data, io) {
-  try {
-    const notification = new Notification(data);
-    await notification.save();
-
-    const recipientSocket = await Socket.findOne({ userId: data.userId });
-    if (recipientSocket) {
-      // console.log("Notification received:", data);
-      io.to(recipientSocket.socketId).emit("notification", notification);
-    }
-  } catch (error) {
-    console.error("Error handling notification event:", error);
   }
 }
 
@@ -87,7 +51,6 @@ async function handleChat(chatData, io) {
 
     const recipientSocket = await Socket.findOne({ userId: data.parentId });
     if (recipientSocket) {
-      // console.log("Chat received:", chatData);
       io.to(recipientSocket.socketId).emit("chat", chat);
     }
   } catch (error) {
@@ -102,10 +65,23 @@ async function handleMessage(messageData, io) {
 
     const recipientSocket = await Socket.findOne({ userId: data.receiverId });
     if (recipientSocket) {
-      // console.log("Message received:", messageData);
       io.to(recipientSocket.socketId).emit("message", message);
     }
   } catch (error) {
     console.error("Error handling message event:", error);
+  }
+}
+
+exports.handleNotification = async (data, io) => {
+  try {
+    const notification = new Notification(data);
+    await notification.save();
+
+    const recipientSocket = await Socket.findOne({ userId: data.userId });
+    if (recipientSocket) {
+      io.to(recipientSocket.socketId).emit("notification", notification);
+    }
+  } catch (error) {
+    console.error("Error handling notification event:", error);
   }
 }
