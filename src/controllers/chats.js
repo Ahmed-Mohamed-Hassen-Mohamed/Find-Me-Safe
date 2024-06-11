@@ -2,6 +2,15 @@ const Chat = require("../models/chats");
 
 // Example controller functions
 
+exports.createChat = async (chatData) => {
+  try {
+    const chat = new Chat(chatData);
+    await chat.save();
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 exports.getChats = async (req, res) => {
   try {
     const userId = req.params.id;
