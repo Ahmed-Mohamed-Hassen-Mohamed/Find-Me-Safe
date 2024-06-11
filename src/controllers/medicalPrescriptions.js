@@ -31,11 +31,11 @@ exports.getPrescriptions = async (req, res) => {
   try {
     const medicalRecordId = req.params.id;
     const participants = await Prescription.find({ medicalRecordId });
-    if (!participants.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not participants is found" });
-    }
+    // if (!participants.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not participants is found" });
+    // }
     res.status(200).send(participants);
   } catch (err) {
     res.status(500).send(err);
