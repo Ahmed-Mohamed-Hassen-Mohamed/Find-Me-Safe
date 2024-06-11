@@ -32,11 +32,11 @@ exports.getUserChildern = async (req, res) => {
   try {
     const userId = req.params.id;
     const childern = await Child.find({ userId });
-    if (!childern.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not childern is found" });
-    }
+    // if (!childern.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not childern is found" });
+    // }
     res.status(200).send(childern);
   } catch (err) {
     res.status(500).send(err);
