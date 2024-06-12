@@ -19,7 +19,7 @@ exports.getPrescriptionById = async (req, res) => {
     if (!participant) {
       return res
         .status(404)
-        .send({ Error: "Not found", message: "This participant is not found" });
+        .send({ Error: "Not found", message: "This prescription is not found" });
     }
     res.status(200).send(participant);
   } catch (err) {
@@ -34,7 +34,7 @@ exports.getPrescriptions = async (req, res) => {
     // if (!participants.length) {
     //   return res
     //     .status(404)
-    //     .send({ Error: "Not found", message: "Not participants is found" });
+    //     .send({ Error: "Not found", message: "Not prescriptions is found" });
     // }
     res.status(200).send(participants);
   } catch (err) {
@@ -52,7 +52,7 @@ exports.updatePrescriptionById = async (req, res) => {
     if (!participant) {
       return res
         .status(404)
-        .send({ Error: "Not found", message: "This participant is not found" });
+        .send({ Error: "Not found", message: "This prescription is not found" });
     }
     res.status(200).send(participant);
   } catch (err) {
@@ -69,7 +69,7 @@ exports.deletePrescriptionById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This participant is not found" });
     }
-    res.status(200).send({ message: "Participant has been deleted" });
+    res.status(200).send({ message: "Prescription has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
