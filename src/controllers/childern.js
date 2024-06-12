@@ -75,7 +75,7 @@ exports.deleteChildById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This child is not found" });
     }
-    res.status(200).send("Child has been deleted");
+    res.status(200).send({ message: "Child has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
