@@ -69,7 +69,7 @@ exports.deletePrescriptionById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This participant is not found" });
     }
-    res.status(200).send("Participant has been deleted");
+    res.status(200).send({ message: "Participant has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
