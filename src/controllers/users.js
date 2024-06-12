@@ -225,12 +225,12 @@ exports.deleteUser = async (req, res) => {
   try {
     const user = req.user;
     const _user = user.deleteOne();
-    // if (!_user) {
-    //   return res
-    //     .status(404)
-    //     .send({ Error: "Not found", message: "This user is not found" });
-    // }
-    res.status(200).send("User has been deleted");
+    if (!_user) {
+      return res
+        .status(404)
+        .send({ Error: "Not found", message: "This user is not found" });
+    }
+    res.status(200).send({ message: "User has been deleted"});
   } catch (err) {
     res.status(500).send(err);
   }
