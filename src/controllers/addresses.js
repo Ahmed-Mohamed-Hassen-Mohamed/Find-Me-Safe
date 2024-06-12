@@ -68,7 +68,7 @@ exports.deleteAddressById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This address is not found" });
     }
-    res.status(200).send("Address has been deleted");
+    res.status(200).send({ message: "Address has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
