@@ -68,7 +68,7 @@ exports.deleteContactById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This contact is not found" });
     }
-    res.status(200).send("Contact has been deleted");
+    res.status(200).send({ message: "Contact has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
