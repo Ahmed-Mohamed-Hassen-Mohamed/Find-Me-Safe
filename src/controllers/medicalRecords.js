@@ -68,7 +68,8 @@ exports.deleteRecordById = async (req, res) => {
         .status(404)
         .send({ Error: "Not found", message: "This record is not found" });
     }
-    res.status(200).send("Record has been deleted");
+    
+    res.status(200).send({ message: "Record has been deleted" });
   } catch (err) {
     res.status(500).send(err);
   }
