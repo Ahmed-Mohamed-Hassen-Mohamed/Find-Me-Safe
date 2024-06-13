@@ -10,7 +10,7 @@ exports.socketEvents = (io) => {
     socket.on("authenticated", (data) => authenticated(data, socket));
 
     // Listen for notification events
-    socket.on("notification", (data) => handleNotification(data, io));
+    // socket.on("notification", (data) => sendNotification(data, io));
 
     // Listen for chat events
     socket.on("chat", (data) => handleChat(data, io));
@@ -72,7 +72,7 @@ async function handleMessage(messageData, io) {
   }
 }
 
-exports.handleNotification = async (data, io) => {
+exports.sendNotification = async (data, io) => {
   try {
     const notification = new Notification(data);
     await notification.save();
