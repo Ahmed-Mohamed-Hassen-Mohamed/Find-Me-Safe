@@ -4,10 +4,16 @@ const Chat = require("../models/chats");
 
 exports.createChat = async (chatData) => {
   try {
-    const chat = new Chat(chatData);
-    await chat.save();
+    const _chat = await Chat.findOne({
+      childId: chatData.childId,
+      finderId: chatData.finderId,
+    });
+    if (!_chat) {
+      const chat = new Chat(chatData);
+      await chat.save();
+    }
   } catch (err) {
-    res.status(500).send(err);
+    throw new Error({ message: err });
   }
 };
 
