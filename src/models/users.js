@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: "3",
-    maxlength: "10",
+    maxlength: "20",
     validate(value) {
       if (/\s/.test(value)) {
         throw new Error("FirstName must not contain spaces");
@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: "3",
-    maxlength: "10",
+    maxlength: "20",
     validate(value) {
       if (/\s/.test(value)) {
         throw new Error("LastName must not contain spaces");
@@ -105,9 +105,11 @@ userSchema.pre("save", async function () {
   }
 });
 
-userSchema.pre('remove', async function (next) {
-  await this.model('Address').deleteMany({ userId: this._id });
-  await this.model('Child').deleteMany({ userId: this._id });
+userSchema.pre("remove", async function (next) {
+  await this.model("Address").deleteMany({ userId: this._id });
+  await this.model("Child").deleteMany({ userId: this._id });
+  await this.model("Notification").deleteMany({ userId: this._id });
+  await this.model("Socket").deleteMany({ userId: this._id });
   next();
 });
 
