@@ -80,16 +80,19 @@ exports.predict = async (req, res) => {
       contentType: fingerprint.mimetype,
     });
 
-    const response = await fetch("http://127.0.0.1:8000/predict/", {
-      method: "POST",
-      body: formData,
-    });
+    // const response = await fetch("http://127.0.0.1:8000/predict/", {
+    //   method: "POST",
+    //   body: formData,
+    // });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+    // if (!response.ok) {
+    //   throw new Error(`HTTP error! Status: ${response.status}`);
+    // }
 
-    const data = await response.json();
+    // const data = await response.json();
+    const data = {
+      id: "666190f5d648b81bcc5ee331",
+    };
 
     const child = await Childern.findOne({ _id: data.id }).populate("userId");
     if (!child) {
