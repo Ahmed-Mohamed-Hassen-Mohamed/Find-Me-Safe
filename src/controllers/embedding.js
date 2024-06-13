@@ -1,5 +1,7 @@
 const Embedding = require("../models/embedding");
 const Childern = require("../models/childern");
+const Participant = require("../models/contactParticipants");
+const MedicalRecord = require("../models/medicalRecords");
 const { createChat } = require("../controllers/chats");
 const { sendNotification } = require("../socket");
 let IO;
@@ -89,29 +91,34 @@ exports.predict = async (req, res) => {
 
     const data = await response.json();
 
-    const child = await Childern.findOne({ _id: data.id });
+    const child = await Childern.findOne({ _id: data.id }).populate("userId");
     if (!child) {
       return res.status(404).send("Child not found");
     }
+    const participants = await Participant.find({
+      childId: child._id,
+    }).populate("emergencyContactId");
+    let medicalRecords = await MedicalRecord.find({
+      childId: child._id,
+    });
 
     const chatData = {
       childId: child._id,
-      parentId: child.userId,
+      parentId: child.userId._id,
       finderId: req.user._id,
     };
-    await createChat(chatData)
-    
+    await createChat(chatData);
+
     const notificationData = {
-      userId: child.userId,
+      userId: child.userId._id,
       content: "Hello World",
       status: "True",
       type: "Find Child",
     };
     await sendNotification(notificationData, IO);
 
-    res.status(200).send(child);
+    res.status(200).send({ child, participants, medicalRecords });
   } catch (err) {
-    console.error("Error:", err);
     res.status(400).send(err.message || "Bad Request");
   }
 };
