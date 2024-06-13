@@ -34,10 +34,13 @@ async function removeSocket(socket) {
 
 async function authenticated(data, socket) {
   try {
-    const session = new Socket({
-      userId: data.userId,
-      socketId: socket.id,
-    });
+    let session = await Socket.findOne({ userId: data.userId });
+    if (!session) {
+      session = new Socket({
+        userId: data.userId,
+        socketId: socket.id,
+      });
+    }
     await session.save();
   } catch (err) {
     console.error(err.message);
