@@ -41,6 +41,7 @@ async function authenticated(data, socket) {
         socketId: socket.id,
       });
     }
+    session.socketId = socket.id;
     await session.save();
   } catch (err) {
     console.error(err.message);
