@@ -65,8 +65,8 @@ exports.addEmbedding = async (req, res) => {
 
 exports.predict = async (req, res) => {
   try {
-    const face = req.files[0];
-    const fingerprint = req.files[1];
+    const face = req.files.face[0];
+    const fingerprint = req.files.fingerprint[0];
 
     const formData = new FormData();
 
