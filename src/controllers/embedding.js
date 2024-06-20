@@ -19,44 +19,48 @@ exports.addEmbedding = async (req, res) => {
     const formFingerprint = new FormData();
 
     faces.forEach((face) => {
-      formFace.append("images", new Blob([face.buffer]), face.originalname);
+      formFace.append("images", new Blob([face.buffer]), {
+        filename: face.originalname,
+        contentType: face.mimetype,
+      });
     });
 
     fingerprints.forEach((fingerprint) => {
-      formFingerprint.append(
-        "images",
-        new Blob([fingerprint.buffer]),
-        fingerprint.originalname
-      );
+      formFingerprint.append("images", new Blob([fingerprint.buffer]), {
+        filename: fingerprint.originalname,
+        contentType: fingerprint.mimetype,
+      });
     });
-
-    const [responseFace, responseFingerprint] = await Promise.all([
-      fetch("http://127.0.0.1:8000/get_embedding_face/", {
+    // responseFingerprint
+    const [responseFace] = await Promise.all([
+      fetch("https://3702-41-46-33-205.ngrok-free.app/getembedding/", {
         method: "POST",
         body: formFace,
       }),
-      fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
-        method: "POST",
-        body: formFingerprint,
-      }),
+      // fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
+      //   method: "POST",
+      //   body: formFingerprint,
+      // }),
     ]);
 
-    if (!responseFace.ok || !responseFingerprint.ok) {
+    if (!responseFace.ok) {
       throw new Error("Error in fetching embeddings");
     }
     const face = await responseFace.json();
-    const fingerprint = await responseFingerprint.json();
+    // const fingerprint = await responseFingerprint.json();
 
-    for (let fa of face.embedding) {
-      for (let fi of fingerprint.embedding) {
+    if (faces.length) {
+      const result = face.result;
+      for (let face of result) {
         const embedding = new Embedding({
-          embedding: [fa, fi],
+          embedding: face,
           childId: req.body.childId,
+          biometricType: faces[0].fieldname,
         });
         await embedding.save();
       }
     }
-    res.status(200).send("ok");
+    res.status(200).send({ face });
   } catch (err) {
     console.error("Error:", err);
     res.status(400).send(err.message || "Bad Request");
@@ -67,6 +71,8 @@ exports.predict = async (req, res) => {
   try {
     const face = req.files.face[0];
     const fingerprint = req.files.fingerprint[0];
+    const iris = req.files.iris[0];
+    const voice = req.files.voice[0];
 
     const formData = new FormData();
 
@@ -74,22 +80,33 @@ exports.predict = async (req, res) => {
       filename: face.originalname,
       contentType: face.mimetype,
     });
-
     formData.append("fingerprint", new Blob([fingerprint.buffer]), {
       filename: fingerprint.originalname,
       contentType: fingerprint.mimetype,
     });
 
-    // const response = await fetch("http://127.0.0.1:8000/predict/", {
-    //   method: "POST",
-    //   body: formData,
-    // });
+    formData.append("iris", new Blob([iris.buffer]), {
+      filename: iris.originalname,
+      contentType: iris.mimetype,
+    });
+    formData.append("voice", new Blob([voice.buffer]), {
+      filename: voice.originalname,
+      contentType: voice.mimetype,
+    });
+
+    // const response = await fetch(
+    //   "https://87c3-41-46-33-205.ngrok-free.app/predict/",
+    //   {
+    //     method: "POST",
+    //     body: formData,
+    //   }
+    // );
 
     // if (!response.ok) {
     //   throw new Error(`HTTP error! Status: ${response.status}`);
     // }
-
     // const data = await response.json();
+
     const data = {
       id: "666190f5d648b81bcc5ee331",
     };
