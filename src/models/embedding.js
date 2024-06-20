@@ -7,15 +7,15 @@ const embeddingSchema = new mongoose.Schema({
     ref: "Child",
   },
   embedding: {
-    type: [[Number]],
-    required: true
-  }
+    type: [Number],
+    required: true,
+  },
+  biometricType: {
+    type: String,
+    enum: ["face", "fingerprint", "iris", "voice"],
+    required: true,
+  },
 });
-
-embeddingSchema.methods.toJSON = function () {
-  const userObject = this.toObject();
-  return userObject;
-};
 
 const Embedding = mongoose.model("Embedding", embeddingSchema);
 module.exports = Embedding;
