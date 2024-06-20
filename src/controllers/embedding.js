@@ -14,9 +14,13 @@ exports.addEmbedding = async (req, res) => {
   try {
     const faces = req.files.face;
     const fingerprints = req.files.fingerprint;
+    const iris = req.files.iris;
+    const voices = req.files.voice;
 
     const formFace = new FormData();
     const formFingerprint = new FormData();
+    const formIris = new FormData();
+    const formVoice = new FormData();
 
     faces.forEach((face) => {
       formFace.append("images", new Blob([face.buffer]), {
@@ -31,36 +35,50 @@ exports.addEmbedding = async (req, res) => {
         contentType: fingerprint.mimetype,
       });
     });
-    // responseFingerprint
-    const [responseFace] = await Promise.all([
-      fetch("https://3702-41-46-33-205.ngrok-free.app/getembedding/", {
-        method: "POST",
-        body: formFace,
-      }),
-      // fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
-      //   method: "POST",
-      //   body: formFingerprint,
-      // }),
-    ]);
 
-    if (!responseFace.ok) {
-      throw new Error("Error in fetching embeddings");
-    }
-    const face = await responseFace.json();
+    iris.forEach((iris) => {
+      formIris.append("images", new Blob([iris.buffer]), {
+        filename: iris.originalname,
+        contentType: iris.mimetype,
+      });
+    });
+
+    voices.forEach((voice) => {
+      formVoice.append("voices", new Blob([voice.buffer]), {
+        filename: voice.originalname,
+        contentType: voice.mimetype,
+      });
+    });
+
+    // const [responseFace, responseFingerprint] = await Promise.all([
+    //   fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
+    //     method: "POST",
+    //     body: formFace,
+    //   }),
+    //   fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
+    //     method: "POST",
+    //     body: formFingerprint,
+    //   }),
+    // ]);
+
+    // if (!responseFace.ok) {
+    //   throw new Error("Error in fetching embeddings");
+    // }
+    // const face = await responseFace.json();
     // const fingerprint = await responseFingerprint.json();
 
-    if (faces.length) {
-      const result = face.result;
-      for (let face of result) {
-        const embedding = new Embedding({
-          embedding: face,
-          childId: req.body.childId,
-          biometricType: faces[0].fieldname,
-        });
-        await embedding.save();
-      }
-    }
-    res.status(200).send({ face });
+    // if (faces.length) {
+    //   const result = face.result;
+    //   for (let face of result) {
+    //     const embedding = new Embedding({
+    //       embedding: face,
+    //       childId: req.body.childId,
+    //       biometricType: faces[0].fieldname,
+    //     });
+    //     await embedding.save();
+    //   }
+    // }
+    res.status(200).send({ message: "successful" });
   } catch (err) {
     console.error("Error:", err);
     res.status(400).send(err.message || "Bad Request");
