@@ -24,7 +24,6 @@ exports.getNotifications = async (req, res) => {
 exports.getNotificationsNumber = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
     const notificationsNumber = await Notification.countDocuments({
       userId,
       isRead: false,
