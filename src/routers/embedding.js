@@ -1,14 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const path = require("path");
 const userAuth = require("../middelware/userAuth");
 const embedding = require("../controllers/embedding");
-const directory = path.join(__dirname, "../assets/img/images");
 
 const upload = multer({
   fileFilter(req, file, cd) {
-    if (!file.originalname.match(/\.(jpg|jpeg|png|jfif|bmp|ogg|mp3)$/)) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|jfif|bmp|ogg|aac)$/)) {
       return cd(new Error("Please upload image"));
     }
     cd(null, true);
