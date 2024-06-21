@@ -6,11 +6,33 @@ const jwt = require("jsonwebtoken");
 
 exports.socketEvents = (io) => {
   io.on("connection", async (socket) => {
-
+    const token = socket.handshake.query.token;
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        if (decoded) {
+          socket.userId = decoded._id;
+          let session = await Socket.findOne({ userId: decoded._id });
+          if (!session) {
+            session = new Socket({
+              userId: decoded._id,
+              socketId: socket.id,
+            });
+          }
+          session.socketId = socket.id;
+          await session.save();
+          console.log("A user connected");
+        }
+      } catch (err) {
+        console.error("Token verification failed:", err.message);
+      }
+    } else {
+      console.error("Token is missing");
+    }
     socket.on("authenticated", (data) => authenticated(data, socket));
 
     // Listen for notification events
-    // socket.on("notification", (data) => sendNotification(data, io));
+    socket.on("notification", (data) => sendNotification(data, io));
 
     // Listen for chat events
     socket.on("chat", (data) => handleChat(data, io));
@@ -88,4 +110,4 @@ exports.sendNotification = async (data, io) => {
   } catch (error) {
     console.error("Error handling notification event:", error);
   }
-}
+};
