@@ -103,9 +103,16 @@ exports.sendNotification = async (data, io) => {
     const notification = new Notification(data);
     await notification.save();
 
+    const notificationsNumber = await Notification.countDocuments({
+      userId: data.userId,
+      isRead: false,
+    });
     const recipientSocket = await Socket.findOne({ userId: data.userId });
     if (recipientSocket) {
-      io.to(recipientSocket.socketId).emit("notification", notification);
+      io.to(recipientSocket.socketId).emit("notification", {
+        notification,
+        notificationsNumber,
+      });
     }
   } catch (error) {
     console.error("Error handling notification event:", error);
