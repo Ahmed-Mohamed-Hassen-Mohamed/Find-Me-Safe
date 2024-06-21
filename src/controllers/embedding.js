@@ -157,8 +157,8 @@ exports.predict = async (req, res) => {
 
     const notificationData = {
       userId: child.userId._id,
-      content: "Hello World",
-      status: "True",
+      content: `${req.user.firstName} ${req.user.lastName} بواسطه (${child.name}) تهانينا لك لقد تم العثور على طفلك`,
+      status: "success",
       type: "Find Child",
     };
     await sendNotification(notificationData, IO);
