@@ -4,8 +4,8 @@ const Participant = require("../models/contactParticipants");
 const MedicalRecord = require("../models/medicalRecords");
 const { createChat } = require("../controllers/chats");
 const { sendNotification } = require("../socket");
-let IO;
 
+let IO;
 exports.sharedSocket = (io) => {
   IO = io;
 };
@@ -13,9 +13,12 @@ exports.sharedSocket = (io) => {
 exports.addEmbedding = async (req, res) => {
   try {
     const faces = req.files.face;
-    const fingerprints = req.files.fingerprint;
-    const iris = req.files.iris;
-    const voices = req.files.voice;
+    let fingerprints;
+    if (req.files.fingerprint) fingerprints = req.files.fingerprint;
+    let iris;
+    if (req.files.iris) iris = req.files.iris;
+    let voices;
+    if (req.files.voice) voices = req.files.voice;
 
     const formFace = new FormData();
     const formFingerprint = new FormData();
@@ -28,27 +31,27 @@ exports.addEmbedding = async (req, res) => {
         contentType: face.mimetype,
       });
     });
-
-    fingerprints.forEach((fingerprint) => {
-      formFingerprint.append("images", new Blob([fingerprint.buffer]), {
-        filename: fingerprint.originalname,
-        contentType: fingerprint.mimetype,
+    if (req.files.fingerprint)
+      fingerprints.forEach((fingerprint) => {
+        formFingerprint.append("images", new Blob([fingerprint.buffer]), {
+          filename: fingerprint.originalname,
+          contentType: fingerprint.mimetype,
+        });
       });
-    });
-
-    iris.forEach((iris) => {
-      formIris.append("images", new Blob([iris.buffer]), {
-        filename: iris.originalname,
-        contentType: iris.mimetype,
+    if (req.files.iris)
+      iris.forEach((iris) => {
+        formIris.append("images", new Blob([iris.buffer]), {
+          filename: iris.originalname,
+          contentType: iris.mimetype,
+        });
       });
-    });
-
-    voices.forEach((voice) => {
-      formVoice.append("voices", new Blob([voice.buffer]), {
-        filename: voice.originalname,
-        contentType: voice.mimetype,
+    if (req.files.voice)
+      voices.forEach((voice) => {
+        formVoice.append("voices", new Blob([voice.buffer]), {
+          filename: voice.originalname,
+          contentType: voice.mimetype,
+        });
       });
-    });
 
     // const [responseFace, responseFingerprint] = await Promise.all([
     //   fetch("http://127.0.0.1:8000/get_embedding_fingerprint/", {
@@ -88,9 +91,12 @@ exports.addEmbedding = async (req, res) => {
 exports.predict = async (req, res) => {
   try {
     const face = req.files.face[0];
-    const fingerprint = req.files.fingerprint[0];
-    const iris = req.files.iris[0];
-    const voice = req.files.voice[0];
+    let fingerprint;
+    if (req.files.fingerprint) fingerprint = req.files.fingerprint[0];
+    let iris;
+    if (req.files.iris) iris = req.files.iris[0];
+    let voice;
+    if (req.files.voice) voice = req.files.voice[0];
 
     const formData = new FormData();
 
@@ -98,19 +104,21 @@ exports.predict = async (req, res) => {
       filename: face.originalname,
       contentType: face.mimetype,
     });
-    formData.append("fingerprint", new Blob([fingerprint.buffer]), {
-      filename: fingerprint.originalname,
-      contentType: fingerprint.mimetype,
-    });
-
-    formData.append("iris", new Blob([iris.buffer]), {
-      filename: iris.originalname,
-      contentType: iris.mimetype,
-    });
-    formData.append("voice", new Blob([voice.buffer]), {
-      filename: voice.originalname,
-      contentType: voice.mimetype,
-    });
+    if (req.files.fingerprint)
+      formData.append("fingerprint", new Blob([fingerprint.buffer]), {
+        filename: fingerprint.originalname,
+        contentType: fingerprint.mimetype,
+      });
+    if (req.files.iris)
+      formData.append("iris", new Blob([iris.buffer]), {
+        filename: iris.originalname,
+        contentType: iris.mimetype,
+      });
+    if (req.files.voice)
+      formData.append("voice", new Blob([voice.buffer]), {
+        filename: voice.originalname,
+        contentType: voice.mimetype,
+      });
 
     // const response = await fetch(
     //   "https://87c3-41-46-33-205.ngrok-free.app/predict/",
