@@ -32,7 +32,7 @@ exports.socketEvents = (io) => {
     socket.on("authenticated", (data) => authenticated(data, socket));
 
     // Listen for notification events
-    socket.on("notification", (data) => sendNotification(data, io));
+    // socket.on("notification", (data) => sendNotification(data, io));
 
     // Listen for chat events
     socket.on("chat", (data) => handleChat(data, io));
