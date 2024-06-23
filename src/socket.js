@@ -75,7 +75,7 @@ async function handleChat(chatData, io) {
     const chat = new Chat(chatData);
     await chat.save();
 
-    const recipientSocket = await Socket.findOne({ userId: data.parentId });
+    const recipientSocket = await Socket.findOne({ userId: chat.parentId });
     if (recipientSocket) {
       io.to(recipientSocket.socketId).emit("chat", chat);
     }
@@ -89,7 +89,7 @@ async function handleMessage(messageData, io) {
     const message = new Message(messageData);
     await message.save();
 
-    const recipientSocket = await Socket.findOne({ userId: data.receiverId });
+    const recipientSocket = await Socket.findOne({ userId: message.receiverId });
     if (recipientSocket) {
       io.to(recipientSocket.socketId).emit("message", message);
     }
@@ -107,7 +107,7 @@ exports.sendNotification = async (data, io) => {
       userId: data.userId,
       isRead: false,
     });
-    const recipientSocket = await Socket.findOne({ userId: data.userId });
+    const recipientSocket = await Socket.findOne({ userId: notification.userId });
     if (recipientSocket) {
       io.to(recipientSocket.socketId).emit("notification", {
         notification,
