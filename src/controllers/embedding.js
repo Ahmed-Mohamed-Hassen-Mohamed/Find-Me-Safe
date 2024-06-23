@@ -141,6 +141,7 @@ exports.predict = async (req, res) => {
     if (!child) {
       return res.status(200).send({ message: "Child not found" });
     }
+    delete child.userId.password;
     const participants = await Participant.find({
       childId: child._id,
     }).populate("emergencyContactId");
