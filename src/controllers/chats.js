@@ -25,11 +25,11 @@ exports.getChats = async (req, res) => {
     })
       .populate("childId parentId finderId")
       .sort({ _id: -1 });
-    if (!chats.length) {
-      return res
-        .status(404)
-        .send({ Error: "Not found", message: "Not chats is found" });
-    }
+    // if (!chats.length) {
+    //   return res
+    //     .status(404)
+    //     .send({ Error: "Not found", message: "Not chats is found" });
+    // }
     res.status(200).send(chats);
   } catch (err) {
     res.status(500).send(err);
