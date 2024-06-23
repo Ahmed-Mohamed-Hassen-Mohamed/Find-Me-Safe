@@ -22,9 +22,7 @@ exports.getChats = async (req, res) => {
     const userId = req.params.id;
     const chats = await Chat.find({
       $or: [{ parentId: req.user._id }, { finderId: req.user._id }],
-    })
-      .populate("childId parentId finderId")
-      .sort({ _id: -1 });
+    }).sort({ _id: -1 });
     // if (!chats.length) {
     //   return res
     //     .status(404)
