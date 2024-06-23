@@ -137,11 +137,10 @@ exports.predict = async (req, res) => {
       id: "66762738531fb47b4377bb11",
     };
 
-    const child = await Childern.findOne({ _id: data.id }).populate("userId");
+    const child = await Childern.findOne({ _id: data.id }).populate("userId", "-password -__v");
     if (!child) {
       return res.status(200).send({ message: "Child not found" });
     }
-    delete child.userId.password;
     const participants = await Participant.find({
       childId: child._id,
     }).populate("emergencyContactId");
