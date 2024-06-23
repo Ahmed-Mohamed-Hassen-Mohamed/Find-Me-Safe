@@ -134,7 +134,7 @@ exports.predict = async (req, res) => {
     // const data = await response.json();
 
     const data = {
-      id: "666190f5d648b81bcc5ee331",
+      id: "66762738531fb47b4377bb11",
     };
 
     const child = await Childern.findOne({ _id: data.id }).populate("userId");
