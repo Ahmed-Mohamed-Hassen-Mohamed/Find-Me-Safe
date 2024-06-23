@@ -139,7 +139,7 @@ exports.predict = async (req, res) => {
 
     const child = await Childern.findOne({ _id: data.id }).populate("userId");
     if (!child) {
-      return res.status(404).send("Child not found");
+      return res.status(200).send({ messaeg: "Child not found" });
     }
     const participants = await Participant.find({
       childId: child._id,
