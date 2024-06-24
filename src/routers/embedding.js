@@ -6,7 +6,7 @@ const embedding = require("../controllers/embedding");
 
 const upload = multer({
   fileFilter(req, file, cd) {
-    if (!file.originalname.match(/\.(jpg|jpeg|png|jfif|bmp|ogg|aac)$/)) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|jfif|bmp|ogg|aac|mp3)$/)) {
       return cd(new Error("Please upload image"));
     }
     cd(null, true);
