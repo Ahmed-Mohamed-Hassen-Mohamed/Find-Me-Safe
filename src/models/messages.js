@@ -24,7 +24,6 @@ const messageSchema = new mongoose.Schema(
     },
     attachment: {
       type: Buffer,
-      required: true,
     },
     isRead: {
       type: Boolean,
