@@ -97,15 +97,13 @@ exports.predict = async (req, res) => {
     if (req.files.iris) iris = req.files.iris[0];
     let voice;
     if (req.files.voice) voice = req.files.voice[0];
-
     const formData = new FormData();
-
     formData.append("face", new Blob([face.buffer]), {
       filename: face.originalname,
       contentType: face.mimetype,
     });
     if (req.files.fingerprint)
-      formData.append("fingerprint", new Blob([fingerprint.buffer]), {
+      formData.append("finger", new Blob([fingerprint.buffer]), {
         filename: fingerprint.originalname,
         contentType: fingerprint.mimetype,
       });
@@ -119,24 +117,20 @@ exports.predict = async (req, res) => {
         filename: voice.originalname,
         contentType: voice.mimetype,
       });
-
-    // const response = await fetch(
-    //   "https://87c3-41-46-33-205.ngrok-free.app/predict/",
-    //   {
-    //     method: "POST",
-    //     body: formData,
-    //   }
-    // );
-
-    // if (!response.ok) {
-    //   throw new Error(`HTTP error! Status: ${response.status}`);
-    // }
-    // const data = await response.json();
-
-    const data = {
-      id: "66762738531fb47b4377bb11",
-    };
-
+    const response = await fetch(
+      "https://2f00-41-46-6-247.ngrok-free.app/predict/",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    if (data.error) {
+      return res.status(200).send({ message: data.error });
+    }
     const child = await Childern.findOne({ _id: data.id });
     if (!child) {
       return res.status(200).send({ message: "Child not found" });
@@ -144,9 +138,22 @@ exports.predict = async (req, res) => {
     const participants = await Participant.find({
       childId: child._id,
     }).populate("emergencyContactId");
-    let medicalRecords = await MedicalRecord.find({
+
+    let medicalRecords = [];
+    const _medicalRecords = await MedicalRecord.find({
       childId: child._id,
     });
+    for (let medicalRecord of _medicalRecords) {
+      await medicalRecord.populate("medicalPrescription");
+      medicalRecords.push({
+        _id: medicalRecord._id,
+        childId: medicalRecord.childId,
+        doctorName: medicalRecord.doctorName,
+        diagnosis: medicalRecord.diagnosis,
+        allergenName: medicalRecord.allergenName,
+        medicalPrescription: medicalRecord.medicalPrescription,
+      });
+    }
 
     const chatData = {
       childId: child._id,
@@ -154,7 +161,6 @@ exports.predict = async (req, res) => {
       finderId: req.user._id,
     };
     await createChat(chatData);
-
     const notificationData = {
       userId: child.userId._id,
       content: `${req.user.firstName} ${req.user.lastName} بواسطه (${child.name}) تهانينا لك لقد تم العثور على طفلك`,
@@ -162,7 +168,6 @@ exports.predict = async (req, res) => {
       type: "Find Child",
     };
     await sendNotification(notificationData, IO);
-
     res.status(200).send({ child, participants, medicalRecords });
   } catch (err) {
     res.status(400).send(err.message || "Bad Request");
