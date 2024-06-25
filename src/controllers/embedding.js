@@ -118,7 +118,7 @@ exports.predict = async (req, res) => {
         contentType: voice.mimetype,
       });
     const response = await fetch(
-      "https://2f00-41-46-6-247.ngrok-free.app/predict/",
+      "https://e6e9-41-46-61-175.ngrok-free.app/predict/",
       {
         method: "POST",
         body: formData,
